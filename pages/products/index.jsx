@@ -1,8 +1,31 @@
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import axios from 'axios'
+
+import Spinner from '@/components/Spinner'
+
+function formatPrice(inputString) {
+  // Extract numbers from the string
+  let number = inputString.match(/\d+\.?\d*/)[0]
+  // Format the number as a price
+  let formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(number)
+  return formattedPrice
+}
 
 const Products = () => {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(false)
+
   const { data: session } = useSession()
+
+  useEffect(() => {
+    setLoading(true)
+    axios.get('/api/products').then((res) => {
+      setProducts(res.data.data)
+      setLoading(false)
+    })
+  }, [])
 
   if (!session) return null
 
@@ -43,9 +66,55 @@ const Products = () => {
 
       <hr className="my-1 h-px border-0 bg-gray-300" />
 
-      <div className="mx-auto max-w-screen-2xl px-6 py-8 sm:px-6 sm:py-8 lg:px-8">
-        no products  
-      </div>  
+      {loading && (
+        <div className="mx-auto max-w-screen-2xl px-6 py-8 sm:px-6 sm:py-8 lg:px-8">
+          <Spinner />
+        </div>
+      )}
+      {!loading && products.length > 0 && (
+        <div className="mx-auto max-w-screen-2xl px-6 py-8 sm:px-6 sm:py-8 lg:px-8">
+          <div className="">
+            <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-4 font-medium text-gray-900"></th>
+                  <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+                    Name
+                  </th>
+                  <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+                    Description
+                  </th>
+                  <th scope="col" className="px-6 py-4 font-medium text-gray-900">
+                    Price
+                  </th>
+                  <th scope="col" className="px-6 py-4 font-medium text-gray-900"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 border-t border-gray-100">
+                {products.map((product, index) => (
+                  <tr key={product._id}>
+                    <th className="px-6 py-4 font-medium text-gray-900">{index + 1}</th>
+                    <th className="px-6 py-4 font-medium text-gray-900">{product.title}</th>
+                    <td className="px-6 py-4 truncate max-w-xs">{product.description}</td>
+                    <td className="px-6 py-4">{formatPrice(product.price)}</td>
+                    <td className="flex justify-end gap-4 px-6 py-4 font-medium">
+                      <Link href={`/products/delete/${product._id}`} className="text-red-500">
+                        Delete
+                      </Link>
+                      <Link href={`/products/edit/${product._id}`} className="text-green-700">
+                        Edit
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      {!loading && products.length === 0 && (
+        <div className="mx-auto max-w-screen-2xl px-6 py-8 sm:px-6 sm:py-8 lg:px-8">no products</div>
+      )}
     </div>
   )
 }

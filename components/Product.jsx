@@ -5,30 +5,38 @@ import { ReactSortable } from 'react-sortablejs'
 import axios from 'axios'
 import Spinner from './Spinner'
 
-const Product = () => {
+const Product = ({
+  _id,
+  title: existingTitle,
+  category: existingCategory,
+  images: existingImages,
+  description: existingDescription,
+  price: existingPrice,
+}) => {
   const router = useRouter()
 
   const [redirect, setRedirect] = useState(false)
 
-  const [fields, setFields] = useState({
-    title: '',
-    category: '',
-    images: [],
-    description: '',
-    price: '',
-  })
+  const [title, setTitle] = useState(existingTitle || '')
+  const [category, setCategory] = useState(existingCategory || '')
+  const [images, setImages] = useState(existingImages || [])
+  const [description, setDescription] = useState(existingDescription || '')
+  const [price, setPrice] = useState(existingPrice || '')
+
   const [isLoading, setIsLoading] = useState(false)
-  const [isUploading, setItUploading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+
+  // needs to be in global scope, so when multiple files are uploaded
+  // it can be added in queue
+  const uploadImagesQueue = []
 
   const uploadImages = async (event) => {
     const files = event.target?.files
 
     if (files.length <= 0) return // do nothing
 
-    const uploadImagesQueue = []
-
     try {
-      setItUploading(true)
+      setIsUploading(true)
 
       for (const file of files) {
         const data = new FormData()
@@ -36,40 +44,45 @@ const Product = () => {
 
         uploadImagesQueue.push(
           axios.post('/api/upload', data).then((res) => {
-            setFields({ ...fields, images: [...fields.images, ...res.data.links] })
+            setImages((oldImages) => ([...oldImages, ...res.data.links]))
           }),
         )
       }
 
       await Promise.all(uploadImagesQueue)
-      setItUploading(false)
+      setIsUploading(false)
     } catch (error) {
       // bail out error
-      console.log('error', error)
-      setItUploading(false)
+      setIsUploading(false)
     }
   }
 
   const handleDeleteImage = (imageIndex) => {
-    const newUpdatedImages = [...fields.images]
+    const newUpdatedImages = [...images]
     newUpdatedImages.splice(imageIndex, 1)
-    setFields({ ...fields, images: newUpdatedImages })
+    setImages(newUpdatedImages)
   }
 
   const submitForm = async (event) => {
     event.preventDefault()
 
     const data = {
-      title: fields.title,
-      category: fields.category,
-      images: fields.images,
-      description: fields.description,
-      price: fields.price,
+      title,
+      category,
+      images,
+      description,
+      price,
     }
 
     try {
       setIsLoading(true)
-      await axios.post('/api/products', data)
+
+      if (_id) {
+        await axios.put('/api/products', { ...data, _id })
+      } else {
+        await axios.post('/api/products', data)
+      }
+
       setIsLoading(false)
       setRedirect(true)
     } catch (error) {
@@ -95,8 +108,8 @@ const Product = () => {
             id="title-field"
             className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 p-4"
             placeholder="Add product title"
-            value={fields.title}
-            onChange={(event) => setFields({ ...fields, title: event.target.value })}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
             autoComplete="off"
           />
         </div>
@@ -110,8 +123,8 @@ const Product = () => {
           <select
             id="category-field"
             className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 p-4"
-            value={fields.category}
-            onChange={(event) => setFields({ ...fields, category: event.target.value })}
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
           >
             <option value="">No category selected</option>
             <option value="2">Option02</option>
@@ -146,7 +159,7 @@ const Product = () => {
               <span className="font-medium text-primary-500 hover:text-primary-700">Click to upload </span>
               or drag and drop
             </div>
-            <p className="text-sm text-gray-500">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+            <p className="text-sm text-gray-500">PNG, JPG or JPEG (max. 800x400px)</p>
           </div>
           <input id="fileInput" type="file" className="hidden" accept="image/*" multiple onChange={uploadImages} />
         </label>
@@ -156,12 +169,12 @@ const Product = () => {
         {isUploading && <Spinner />}
         {!isUploading && (
           <ReactSortable
-            list={fields.images}
-            setList={(newImageOrder) => setFields({ ...fields, images: newImageOrder })}
+            list={images}
+            setList={(newImageOrder) => setImages(newImageOrder)}
             animation={200}
             className="grid grid-cols-2 gap-4"
           >
-            {fields.images.map((imageLink, index) => (
+            {images.map((imageLink, index) => (
               <div key={imageLink} className="relative group">
                 <img src={imageLink} alt="image" className="object-cover h-32 w-44 rounded-md p-2" />
                 <div className="absolute top-2 right-2 cursor-pointer group-hover:opacity-100 opacity-0 transition-opacity ">
@@ -199,8 +212,8 @@ const Product = () => {
             id="description-field"
             className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 p-4"
             placeholder="Add product description"
-            value={fields.description}
-            onChange={(event) => setFields({ ...fields, description: event.target.value })}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
           />
         </div>
       </div>
@@ -215,8 +228,8 @@ const Product = () => {
             id="price-field"
             className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 p-4"
             placeholder="Add product price"
-            value={fields.price}
-            onChange={(event) => setFields({ ...fields, price: event.target.value })}
+            value={price}
+            onChange={(event) => setPrice(event.target.value)}
           />
         </div>
       </div>

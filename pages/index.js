@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const { data: session } = useSession()
@@ -77,15 +76,6 @@ export default function Home() {
       </>
     )
   }
-
-  // if (session) {
-  //   return (
-  //     <>
-  //       Signed in as {session.user.email} <br />
-  //       <button onClick={() => signOut()}>Sign out</button>
-  //     </>
-  //   )
-  // }
 
   return (
     <div className="flex flex-col min-h-screen justify-center items-center">
