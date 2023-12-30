@@ -37,7 +37,9 @@ const EditProduct = () => {
               <h1 className="text-3xl font-bold text-gray-900 sm:text-3xl">
                 Welcome Back, <span className="text-green-700">{session.user?.name}!</span>
               </h1>
-              <p className="mt-1.5 text-md text-gray-500 max-w-lg">Edit the product {product?.title}</p>
+              <p className="mt-1.5 text-md text-gray-500 max-w-lg">
+                Edit the product <span className="text-green-500">{product?.title}</span>
+              </p>
             </div>
 
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">

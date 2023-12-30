@@ -3,8 +3,11 @@ import Link from 'next/link'
 import { useSession, signIn } from 'next-auth/react'
 import axios from 'axios'
 
+const shopUrl = 'https://google.com'
+
 const formatPrice = (price) => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const parsedPrice = parseFloat(price).toFixed(2)
+  return parsedPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 export default function Home() {
@@ -25,10 +28,9 @@ export default function Home() {
     })
   }, [])
 
-  
   if (session) {
-    const totalImagesCount = products?.reduce((total, product) => total + product.images.length, 0);
-    const totalPrice = products?.reduce((total, product) => total + product.price, 0);
+    const totalImagesCount = products?.reduce((total, product) => total + product.images.length, 0)
+    const totalPrice = products?.reduce((total, product) => total + product.price, 0)
 
     return (
       <>
@@ -49,7 +51,7 @@ export default function Home() {
                   className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-gray-500 transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                   href="/products"
                 >
-                  <span className="text-md font-medium"> View Products </span>
+                  <span className="text-md font-medium">View Products</span>
 
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -67,9 +69,11 @@ export default function Home() {
                   </svg>
                 </Link>
 
-                <button
+                <Link
                   className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-green-200 px-5 py-3 text-green-500 transition hover:bg-green-50 hover:text-green-700 focus:outline-none focus:ring"
-                  type="button"
+                  href={shopUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   <span className="text-md font-medium"> View Shop </span>
 
@@ -87,7 +91,7 @@ export default function Home() {
                       d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
                     />
                   </svg>
-                </button>
+                </Link>
               </div>
             </div>
           </div>
