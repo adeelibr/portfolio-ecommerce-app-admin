@@ -10,7 +10,6 @@ export default async function handle(req, res) {
     const { name, parentCategory } = req.body
 
     const categoryDoc = await Category.create({ name, parent: parentCategory || undefined })
-    console.log('categoryDoc', categoryDoc)
     res.status(200).json(categoryDoc)
   }
 
