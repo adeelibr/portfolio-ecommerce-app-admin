@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ReactSortable } from 'react-sortablejs'
 import axios from 'axios'
@@ -12,6 +12,11 @@ const Product = ({
   images: existingImages,
   description: existingDescription,
   price: existingPrice,
+  details: existingDetails,
+  brand: existingBrand,
+  colors: existingColors,
+  gender: existingGender,
+  sizes: existingSizes,
 }) => {
   const router = useRouter()
 
@@ -22,9 +27,22 @@ const Product = ({
   const [images, setImages] = useState(existingImages || [])
   const [description, setDescription] = useState(existingDescription || '')
   const [price, setPrice] = useState(existingPrice || '')
+  const [details, setDetails] = useState(existingDetails || '')
+  const [brand, setBrand] = useState(existingBrand || '')
+  const [colors, setColors] = useState(existingColors || '')
+  const [gender, setGender] = useState(existingGender || '')
+  const [sizes, setSizes] = useState(existingSizes || '')
+
+  const [categoriesList, setCategoriesList] = useState([])
 
   const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+
+  useEffect(() => {
+    axios.get('/api/categories').then((result) => {
+      setCategoriesList(result.data)
+    })
+  }, [])
 
   // needs to be in global scope, so when multiple files are uploaded
   // it can be added in queue
@@ -44,7 +62,7 @@ const Product = ({
 
         uploadImagesQueue.push(
           axios.post('/api/upload', data).then((res) => {
-            setImages((oldImages) => ([...oldImages, ...res.data.links]))
+            setImages((oldImages) => [...oldImages, ...res.data.links])
           }),
         )
       }
@@ -127,8 +145,11 @@ const Product = ({
             onChange={(event) => setCategory(event.target.value)}
           >
             <option value="">No category selected</option>
-            <option value="2">Option02</option>
-            <option value="3">Option03</option>
+            {categoriesList?.map((categoryItem) => (
+              <option key={categoryItem._id} value={categoryItem._id}>
+                {categoryItem.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -214,6 +235,71 @@ const Product = ({
             placeholder="Add product description"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Product Details input */}
+      <div className="mx-auto max-w-screen-md grid grid-cols-2 items-center my-4">
+        <label className="col-span-1 block text-lg font-medium text-gray-700 mb-3">Product Details</label>
+        <div className="col-span-2">
+          <textarea
+            type="text"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 border p-3"
+            placeholder="Product details"
+            rows={6}
+            required
+            value={details}
+            onChange={(ev) => setDetails(ev.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* more details */}
+      <div className="mx-auto max-w-screen-md grid grid-cols-1 gap-4 sm:grid-cols-2 my-4">
+        <div>
+          <label>Brand</label>
+          <input
+            className="w-full rounded-lg border border-gray-200 p-3 text-sm"
+            placeholder="Add brand name"
+            type="text"
+            value={brand}
+            onChange={(ev) => setBrand(ev.target.value)}
+          />
+        </div>
+
+        <div>
+          <label>Gender</label>
+          <input
+            className="w-full rounded-lg border border-gray-200 p-3 text-sm"
+            placeholder="For which gender is the product for"
+            type="text"
+            value={gender}
+            onChange={(ev) => setGender(ev.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-screen-md grid grid-cols-1 gap-4 sm:grid-cols-2 my-4">
+        <div>
+          <label>Sizes</label>
+          <input
+            className="w-full rounded-lg border border-gray-200 p-3 text-sm"
+            placeholder="What is the size? small, medium, large"
+            type="text"
+            value={sizes}
+            onChange={(ev) => setSizes(ev.target.value)}
+          />
+        </div>
+
+        <div>
+          <label>Color Options</label>
+          <input
+            className="w-full rounded-lg border border-gray-200 p-3 text-sm"
+            placeholder="Available color options"
+            type="text"
+            value={colors}
+            onChange={(ev) => setColors(ev.target.value)}
           />
         </div>
       </div>

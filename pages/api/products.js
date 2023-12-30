@@ -7,14 +7,28 @@ export default async function handler(req, res) {
   await mongooseConnect()
 
   if (method === 'POST') {
-    const { title, description, price, images } = req.body
-    const data = await Product.create({ title, description, price, images })
+    const { title, description, price, images, category, details, brand, gender, sizes, colors } = req.body
+    const data = await Product.create({
+      title,
+      description,
+      price,
+      images,
+      category,
+      details,
+      brand,
+      gender,
+      sizes,
+      colors,
+    })
     res.status(200).json({ success: true, data })
   }
 
   if (method === 'PUT') {
-    const { _id, title, description, price, images } = req.body
-    const data = await Product.updateOne({ _id }, { title, description, price, images })
+    const { _id, title, description, price, images, category, details, brand, gender, sizes, colors } = req.body
+    const data = await Product.updateOne(
+      { _id },
+      { title, description, price, images, category, details, brand, gender, sizes, colors },
+    )
     res.status(200).json({ success: true, data })
   }
 

@@ -29,3 +29,9 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 - [Sailboat UI](https://sailboatui.com/)
 - [HyperUI](https://www.hyperui.dev/)
 - [HeroIcons](https://heroicons.com/outline)
+
+- [Cloudinary](cloudinary.com/)
+- [Stripe](https://dashboard.stripe.com/test/dashboard)
+- [NextAuth](https://next-auth.js.org/)
+- [MongoDB](https://cloud.mongodb.com/)
+- [GoogleAuth](https://console.cloud.google.com/)
