@@ -90,6 +90,11 @@ const Product = ({
       images,
       description,
       price,
+      details,
+      brand,
+      colors,
+      gender,
+      sizes
     }
 
     try {
